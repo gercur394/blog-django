@@ -1,0 +1,13 @@
+{% extends 'posts/base.html' %}
+
+{% block content %}
+    <h1>Publicaciones del blog</h1>
+
+    {% for post in posts %}
+        <article>
+            <h2>{{ post.titulo }}</h2>
+            <p><strong>Autor:</strong> {{ post.autor }} — <strong>Fecha:</strong> {{ post.fecha_creacion }}</p>
+            <p>{{ post.contenido }}</p>
+        </article>
+    {% endfor %}
+{% endblock %}
