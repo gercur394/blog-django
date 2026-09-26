@@ -1,10 +1,10 @@
 # Blog Django
 
-Proyecto de un blog web desarrollado con Django, con publicaciones gestionadas desde una base de datos real a través del panel administrativo.
+Proyecto de un blog web desarrollado con Django. Permite crear, ver, editar y eliminar publicaciones (CRUD completo) desde el propio sitio, incluyendo carga de imágenes para cada post.
 
 ## Descripción
 
-Este repositorio contiene un proyecto Django con una aplicación llamada `posts`. El sitio cuenta con página de inicio, página "Acerca de" y una página de listado de publicaciones (`/posts/`) que muestra dinámicamente los posts cargados desde el panel de administración, consultados mediante el ORM de Django.
+Este repositorio contiene un proyecto Django con una aplicación llamada `posts`. Además de las páginas de inicio, "Acerca de" y listado, el sitio permite gestionar publicaciones completas desde la interfaz web: crearlas, verlas en detalle, editarlas y eliminarlas (con confirmación previa), todo con soporte para imágenes.
 
 ## Instalación
 
@@ -46,7 +46,7 @@ En Linux o macOS:
 source venv/bin/activate
 ```
 
-Instalar dependencias:
+Instalar dependencias (incluye Django y Pillow, necesaria para trabajar con imágenes):
 
 ```bash
 pip install -r requirements.txt
@@ -76,19 +76,30 @@ Abrir en el navegador:
 http://127.0.0.1:8000/
 ```
 
-## Panel de administración
+## Operaciones CRUD disponibles
 
-El panel admin permite cargar, editar y eliminar publicaciones sin escribir código.
+- **Listar** (`/posts/`): muestra las publicaciones con estado "publicado", ordenadas de la más reciente a la más antigua.
+- **Ver detalle** (`/posts/<slug>/`): muestra título, contenido, autor, estado, fecha y la imagen del post (si tiene una cargada).
+- **Crear** (`/posts/crear/`): formulario para cargar un nuevo post, incluyendo una imagen opcional.
+- **Editar** (`/posts/<slug>/editar/`): formulario precargado con los datos del post, permite modificar cualquier campo, incluida la imagen.
+- **Eliminar** (`/posts/<slug>/eliminar/`): muestra una página de confirmación antes de borrar el post definitivamente.
 
-1. Con el servidor corriendo, ingresar a:
+Cada post se identifica en la URL mediante un **slug**, generado automáticamente a partir del título la primera vez que se guarda.
 
-```
-http://127.0.0.1:8000/admin/
-```
+## Manejo de imágenes
 
-2. Iniciar sesión con el superusuario creado en la instalación.
-3. Ingresar a la sección **Posts** y usar **Add Post** para cargar una nueva publicación (título, contenido, autor y estado).
-4. Las publicaciones con estado `publicado` aparecen automáticamente en la página `/posts/` del sitio.
+- El modelo `Post` incluye un campo `imagen` (`ImageField`), opcional, que guarda los archivos subidos dentro de la carpeta `media/posts/`.
+- Se utiliza la librería **Pillow** para que Django pueda procesar archivos de imagen.
+- En `settings.py` se configuraron `MEDIA_URL` y `MEDIA_ROOT` para definir dónde se guardan las imágenes y desde qué dirección se sirven.
+- En `blog_project/urls.py` se agregó la configuración para servir esos archivos durante el desarrollo (solo cuando `DEBUG = True`).
+- El formulario de creación/edición (`post_form.html`) incluye el atributo `enctype="multipart/form-data"`, necesario para que los archivos viajen correctamente al servidor; las vistas de crear y editar procesan `request.FILES` junto con `request.POST`.
+
+### Cómo probar la carga de imágenes
+
+1. Ingresar a `/posts/crear/` o editar un post existente.
+2. En el campo de imagen del formulario, seleccionar un archivo desde la computadora.
+3. Guardar el formulario.
+4. Entrar al detalle del post (`/posts/<slug>/`): la imagen cargada debe visualizarse debajo de los datos del post. Si el post no tiene imagen asociada, esa sección simplemente no se muestra.
 
 ## Configuración
 
@@ -97,11 +108,15 @@ http://127.0.0.1:8000/admin/
 
 ## Aplicaciones
 
-- **posts**: aplicación principal del blog. Incluye el modelo `Post` (título, contenido, autor, fecha de creación y estado), su registro en el panel admin, y las vistas de inicio, "Acerca de" y listado de publicaciones.
+- **posts**: aplicación principal del blog. Incluye el modelo `Post` (título, contenido, autor, fecha de creación, estado, imagen y slug), su registro en el panel admin, el formulario `PostForm`, y las vistas de inicio, "Acerca de", listado y CRUD completo de publicaciones.
 
 ## Páginas del sitio
 
 - `/` — Inicio
-- `/posts/` — Listado de publicaciones (posts con estado "publicado", ordenados por fecha de creación descendente)
+- `/posts/` — Listado de publicaciones
+- `/posts/crear/` — Crear un nuevo post
+- `/posts/<slug>/` — Detalle de un post
+- `/posts/<slug>/editar/` — Editar un post
+- `/posts/<slug>/eliminar/` — Confirmar eliminación de un post
 - `/acerca/` — Acerca de
 - `/admin/` — Panel de administración
