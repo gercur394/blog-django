@@ -3,11 +3,13 @@
 {% block content %}
     <h1>Publicaciones del blog</h1>
 
+    <a href="{% url 'crear_post' %}">Crear nuevo post</a>
+
     {% for post in posts %}
         <article>
-            <h2>{{ post.titulo }}</h2>
+            <h2><a href="{% url 'detalle_post' slug=post.slug %}">{{ post.titulo }}</a></h2>
             <p><strong>Autor:</strong> {{ post.autor }} — <strong>Fecha:</strong> {{ post.fecha_creacion }}</p>
-            <p>{{ post.contenido }}</p>
+            <p>{{ post.contenido|truncatewords:20 }}</p>
         </article>
     {% endfor %}
 {% endblock %}
