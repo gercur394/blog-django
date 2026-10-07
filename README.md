@@ -1,10 +1,26 @@
 # Blog Django
 
-Proyecto de un blog web desarrollado con Django. Permite crear, ver, editar y eliminar publicaciones (CRUD completo) con imágenes, y ahora incluye un sistema de usuarios: registro, inicio y cierre de sesión, y perfiles con biografía y avatar.
+Blog web desarrollado con Django, con gestión completa de publicaciones (incluyendo imágenes) y un sistema de usuarios con registro, autenticación y perfiles.
 
 ## Descripción
 
-Este repositorio contiene un proyecto Django con dos aplicaciones: `posts` (publicaciones del blog) y `accounts` (usuarios y perfiles). Los visitantes anónimos pueden ver el listado y el detalle de los posts publicados, pero crear, editar o eliminar publicaciones requiere estar autenticado. Cada usuario registrado tiene un perfil propio, con biografía, link web y avatar.
+Este proyecto es un blog donde los visitantes pueden leer las publicaciones sin necesidad de registrarse, mientras que los usuarios autenticados pueden crear, editar y eliminar posts, además de gestionar su propio perfil con biografía, sitio web y avatar. Fue desarrollado de forma incremental a lo largo de un curso, partiendo de un script simple en consola hasta llegar a esta aplicación web completa.
+
+## Tecnologías utilizadas
+
+- Python
+- Django
+- SQLite (base de datos de desarrollo)
+- Pillow (procesamiento de imágenes)
+- HTML / CSS
+
+## Funcionalidades principales
+
+- **Publicaciones (CRUD completo desde la interfaz web)**: listar, ver detalle, crear, editar y eliminar posts, con carga de imagen opcional por publicación.
+- **Usuarios**: registro, inicio de sesión y cierre de sesión.
+- **Perfiles**: cada usuario tiene un perfil con biografía, link web y avatar, que puede ver y editar.
+- **Rutas protegidas**: crear, editar y eliminar posts, así como editar el perfil, requieren tener una sesión iniciada (protegido a nivel de vista con `@login_required`, no solo ocultando botones en el template).
+- **Navegación según el usuario**: el menú muestra opciones distintas según haya o no una sesión iniciada.
 
 ## Instalación
 
@@ -46,19 +62,19 @@ En Linux o macOS:
 source venv/bin/activate
 ```
 
-Instalar dependencias (incluye Django y Pillow, necesaria para trabajar con imágenes):
+Instalar dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Aplicar las migraciones (crea la base de datos local, incluyendo la tabla de perfiles):
+Aplicar las migraciones (crea la base de datos local, incluyendo las tablas de posts y perfiles):
 
 ```bash
 python manage.py migrate
 ```
 
-Crear un superusuario para acceder al panel administrativo:
+Crear un superusuario (necesario para acceder al panel `/admin/` y para poder iniciar sesión y probar el sitio como usuario autenticado):
 
 ```bash
 python manage.py createsuperuser
@@ -76,35 +92,18 @@ Abrir en el navegador:
 http://127.0.0.1:8000/
 ```
 
-## Sistema de usuarios
+## Probar el proyecto desde cero
 
-### Registro
+Este repositorio no incluye `db.sqlite3` ni la carpeta `media/` (se generan localmente y están excluidos mediante `.gitignore`). Para tener contenido de prueba después de instalar el proyecto:
 
-Cualquier visitante puede crear una cuenta nueva en `/accounts/registro/`, completando usuario, email y contraseña. Al registrarse, además del usuario se crea automáticamente su perfil asociado (inicialmente vacío), y se redirige a la página de login.
-
-### Iniciar sesión
-
-Un usuario ya registrado puede iniciar sesión en `/accounts/login/`. Al loguearse correctamente, es redirigido al listado de posts.
-
-### Cerrar sesión
-
-El cierre de sesión se realiza mediante el botón "Cerrar sesión" del menú (no funciona escribiendo la URL directamente en el navegador, ya que por seguridad solo acepta la acción desde el formulario del sitio). Al cerrar sesión, se redirige al listado de posts.
-
-### Perfil
-
-Cada usuario autenticado puede ver su perfil en `/accounts/perfil/` (biografía, sitio web y avatar) y editarlo en `/accounts/perfil/editar/`. La edición permite modificar biografía, link web y subir/cambiar el avatar. Estas páginas requieren estar logueado.
-
-El modelo `Perfil` (en `accounts/models.py`) se relaciona con el modelo `User` de Django mediante un `OneToOneField`, es decir, cada usuario tiene exactamente un perfil.
-
-## Manejo de avatares
-
-- El campo `avatar` del modelo `Perfil` es un `ImageField`, opcional, que guarda las imágenes dentro de `media/avatares/` (separado de `media/posts/`, donde se guardan las imágenes de las publicaciones).
-- Usa la misma configuración de `MEDIA_URL` y `MEDIA_ROOT` definida en `settings.py`, y el mismo mecanismo de `request.FILES` para procesar el archivo subido en el formulario de edición de perfil.
-- En la página de perfil, el avatar solo se muestra si el usuario tiene uno cargado; si no, esa sección simplemente no aparece.
+1. Seguir los pasos de instalación de arriba hasta tener el servidor corriendo.
+2. Crear una cuenta nueva en `/accounts/registro/`, o usar el superusuario creado en la instalación para iniciar sesión en `/accounts/login/`.
+3. Ir a `/posts/crear/` y cargar algunas publicaciones de prueba (con o sin imagen).
+4. Opcionalmente, entrar a `/admin/` con el superusuario para revisar o administrar los posts y perfiles cargados.
 
 ## Rutas protegidas
 
-Requieren estar autenticado (usan el decorador `@login_required`, que redirige al login si no hay sesión iniciada):
+Requieren tener una sesión iniciada:
 
 - `/posts/crear/` — crear un post
 - `/posts/<slug>/editar/` — editar un post
@@ -112,23 +111,12 @@ Requieren estar autenticado (usan el decorador `@login_required`, que redirige a
 - `/accounts/perfil/` — ver el propio perfil
 - `/accounts/perfil/editar/` — editar el propio perfil
 
-Siguen siendo públicas (visibles sin necesidad de iniciar sesión):
+Son públicas (accesibles sin iniciar sesión):
 
 - `/` — Inicio
 - `/posts/` — Listado de publicaciones
 - `/posts/<slug>/` — Detalle de un post
 - `/acerca/` — Acerca de
-
-## Configuración
-
-- Idioma: español (`es-ar`)
-- Zona horaria: `America/Argentina/Buenos_Aires`
-- `LOGIN_URL`, `LOGIN_REDIRECT_URL` y `LOGOUT_REDIRECT_URL` configurados en `settings.py`
-
-## Aplicaciones
-
-- **posts**: modelo `Post` (título, contenido, autor, fecha, estado, imagen, slug), formulario `PostForm`, vistas de inicio, "Acerca de", listado y CRUD de publicaciones (protegido salvo listado/detalle).
-- **accounts**: modelo `Perfil` (relacionado con `User`, con biografía, link web y avatar), formularios de registro (`RegistroForm`) y edición de perfil (`PerfilForm`), vistas de registro, ver perfil y editar perfil, y las rutas de login/logout provistas por Django.
 
 ## Páginas del sitio
 
@@ -145,3 +133,7 @@ Siguen siendo públicas (visibles sin necesidad de iniciar sesión):
 - `/accounts/perfil/` — Ver mi perfil (requiere login)
 - `/accounts/perfil/editar/` — Editar mi perfil (requiere login)
 - `/admin/` — Panel de administración
+
+## Autor
+
+Germán Curbelo

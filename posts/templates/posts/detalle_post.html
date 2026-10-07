@@ -10,7 +10,9 @@
 
     <p>{{ post.contenido }}</p>
 
-    <a href="{% url 'editar_post' slug=post.slug %}">Editar</a>
-    <a href="{% url 'eliminar_post' slug=post.slug %}">Eliminar</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'editar_post' slug=post.slug %}">Editar</a>
+      <a href="{% url 'eliminar_post' slug=post.slug %}">Eliminar</a>
+    {% endif %}
     <a href="{% url 'lista_posts' %}">Volver al listado</a>
 {% endblock %}
