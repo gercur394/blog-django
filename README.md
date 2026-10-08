@@ -105,6 +105,7 @@ cp .env.example .env
 Luego editar `.env` con los valores correspondientes:
 
 SECRET_KEY=tu-clave-secreta-aqui
+
 DEBUG=True
 
 
