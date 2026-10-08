@@ -92,6 +92,28 @@ Abrir en el navegador:
 http://127.0.0.1:8000/
 ```
 
+## Variables de entorno
+
+El proyecto usa variables de entorno para datos sensibles (`SECRET_KEY` y `DEBUG`), gestionadas con `python-decouple`. El archivo `.env` con los valores reales no se sube al repositorio (está excluido en `.gitignore`).
+
+Antes de ejecutar el proyecto, copiar el archivo de ejemplo y completarlo:
+
+```bash
+cp .env.example .env
+```
+
+Luego editar `.env` con los valores correspondientes:
+
+SECRET_KEY=tu-clave-secreta-aqui
+DEBUG=True
+
+
+Para generar una `SECRET_KEY` nueva, se puede usar:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
 ## Probar el proyecto desde cero
 
 Este repositorio no incluye `db.sqlite3` ni la carpeta `media/` (se generan localmente y están excluidos mediante `.gitignore`). Para tener contenido de prueba después de instalar el proyecto:
